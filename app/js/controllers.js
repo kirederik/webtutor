@@ -9,11 +9,11 @@ MainCtrl.$inject = [];
 
 function ExpressionsCtrl($scope) {
 	$scope.exp = new Expr()
-	$scope.exp.generateValue();
+	$scope.exp.generate();
 
 	$scope.newExp = function() {
 		console.log("msg")
-		$scope.exp.generateValue();
+		$scope.exp.generate();
 	}
 }
 
@@ -49,22 +49,96 @@ var Expr = function (initValue) {
 	this.mask = {
 		NUMB: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
 		OP: ["+", "-", "*", "/"]
-	}
+	},
+	this.exprMax = 3;
 }
 
 Expr.prototype = {
 	randomize: function(seed) {
 		return Math.floor((Math.random()*seed)+1);
-	}, 
-	generateValue: function() {
+	}
+	, merge: function(from, dest, index) {
+		from[index] = dest;
+		return from.join().split(',');
+	}
+	, expand: function(current, max) {
+		// var seed = this.randomize(this.rulesAmount-3);
+		// var currentRule = this.rules["R"+seed];
+
+		// var expanded;
+		// var expression;
+		// if (currentLenght >= this.exprMax) {
+		// 	currentRule = this.rules["R15"];
+		// }
+		// while (currentRule.indexOf("EXPR") > 0) {
+		// 	var splitted = currentRule.split(" ");
+		// 	var index = splitted.indexOf("EXPR");
+		// 	while (index >= 0) {
+		// 		var expanded = this.expand(1);
+		// 		console.log(expanded);
+		// 		expression = this.merge(expression, expanded, index);
+		// 		splitted = currentRule.split(" ");
+		// 		index = splitted.indexOf("EXPR");	
+		// 	}
+		// 	seed = this.randomize(this.rulesAmount)
+		// 	currentRule = this.rules["R"+seed];
+
+		// }
+		// return expression;
+		var i = current || 0;
+		var max = max || 2;
+		var rule;
+		var expanded;
+		while (i < max) {
+			i += 1;
+			var seed = this.randomize(this.rulesAmount);
+			rule = this.rules["R"+seed];
+			expanded = rule.split(" ");
+			var index = expanded.indexOf("EXPR");
+			while (index > 0) {
+				if (i >= max) {
+					var exp = "NUMB"
+				} else {
+					var exp = this.expand(i)					
+				}
+				expanded = this.merge(expanded, exp, index)
+				index = expanded.indexOf("EXPR");
+			}
+		}
+		// console.log(expanded);
+		return expanded;
+	} 
+	, generate: function() {
+		var seed = this.randomize(this.rulesAmount-3);
+		var currentRule = this.rules["R"+seed];
+		var len = 0;
+		var total = currentRule.split(" ");
+		while (currentRule.indexOf("EXPR") > 0 && len < this.exprMax) {
+			var splitted = currentRule.split(" ");
+			var index = splitted.indexOf("EXPR");
+			var expanded = this.expand();
+			total = this.merge(total, expanded, index);
+			seed = this.randomize(this.rulesAmount)
+			currentRule = this.rules["R"+seed];
+		}
+
+		// var v1 = this.expand();
+		console.log(total);
+		return total;
+	}
+}
+
+/*
+
 		var seed = this.randomize(this.rulesAmount-3);
 		var currentRule = this.rules["R"+seed];
 		var exprLenght = 0;
 		while (currentRule.indexOf("EXPR") > 0) {
-			console.debug("Current Rule", currentRule);		
+			// console.debug("Current Rule", currentRule);		
 
-			/* Split the expression and expand the EXPR */
+			/* Split the expression and expand the EXPR 
 			var splited = currentRule.split(" ");
+
 			
 
 			seed = this.randomize(this.rulesAmount)
@@ -75,12 +149,6 @@ Expr.prototype = {
 			exprLenght++;
 		}
 		this.val = "222222"
-	}
-}
-
-/*
-
-
 Numb: [0-9] | NumbNumb
 Op: [*-+/]
 Exp: (Numb Op Exp) Op Exp | [Numb Op Exp] Op Exp | {Numb Op Exp} Op Exp | Numb Op Exp | Numb
