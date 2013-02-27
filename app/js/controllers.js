@@ -7,6 +7,13 @@ function MainCtrl() {}
 MainCtrl.$inject = [];
 
 
+
+function DerivativeController($scope) {
+	
+}
+
+
+
 function ExpressionsCtrl($scope) {
 	$scope.exp = new Expr()
 	$scope.exp.generate();
@@ -50,7 +57,7 @@ var Expr = function (initValue) {
 		NUMB: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
 		OP: ["+", "-", "*", "/"]
 	},
-	this.exprMax = 3;
+	this.exprMax = 0;
 }
 
 Expr.prototype = {
@@ -86,7 +93,7 @@ Expr.prototype = {
 		// }
 		// return expression;
 		var i = current || 0;
-		var max = max || 2;
+		var max = max || 1;
 		var rule;
 		var expanded;
 		while (i < max) {
@@ -113,7 +120,7 @@ Expr.prototype = {
 		var currentRule = this.rules["R"+seed];
 		var len = 0;
 		var total = currentRule.split(" ");
-		while (currentRule.indexOf("EXPR") > 0 && len < this.exprMax) {
+		while (currentRule.indexOf("EXPR") > 0 && len <= this.exprMax) {
 			var splitted = currentRule.split(" ");
 			var index = splitted.indexOf("EXPR");
 			var expanded = this.expand();
