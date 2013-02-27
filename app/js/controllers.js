@@ -8,11 +8,64 @@ MainCtrl.$inject = [];
 
 
 
-function DerivativeController($scope) {
-	
+function DerivativeCtrl($scope) {
+	$scope.problem = new ProblemFunction()
 }
 
+var FunctionRule = function(rule) {
+	this.generators = [
+		{	
+			name: "exponencial",
+			rule: "x ^ n",
+			derivative: {
+				rule: "n * x ^ (n - 1)",
+				tex: "n * x ^ {(n - 1)}"
+			},
+			number: null
+		}
+	]
+	return this.generators[rule];
+}
 
+var ProblemFunction = function() {
+	this.f = {}
+	this.derivative = {};
+	this.r = "";
+	this.regex = /n/g;
+	return this.generate();
+}
+
+ProblemFunction.prototype = {
+	randomize: function(seed) {
+		return Math.floor((Math.random()*seed));
+	}
+	, expandFunction: function(val) {
+		this.f.fn = this.r.rule.replace(this.regex, val+2);
+		this.r.number = val + 2;
+		console.log("expanding rule: ", this.r.rule, " to ", this.f.fn);
+	}
+	, expandDerivative: function() {
+		this.derivative.rule = this.r.derivative.rule.replace(this.regex, this.r.number);
+		this.derivative.tex = this.r.derivative.tex.replace(this.regex, this.r.number);
+		console.log("expanding derivative rule: ", this.r.derivative.rule, " to ", this.derivative);
+	}
+	, setValues: function() {
+		this.f.x = this.randomize(7)+2;
+		this.f.h = 1 / Math.pow(10, this.randomize(4) + 1.0);
+	}
+	, applyRule: function() {
+		this.expandFunction(this.randomize(5));
+		this.expandDerivative();
+	}
+	, generate: function() {
+		this.r = new FunctionRule(this.randomize(0));
+		console.log("rule selected: ", this.r);
+		this.applyRule();
+		this.setValues();
+		console.log(this);
+		return this;
+	}
+}
 
 function ExpressionsCtrl($scope) {
 	$scope.exp = new Expr()
