@@ -8,5 +8,27 @@
 </p>
 
 <p>
-	The derivative: $ {{problem.derivative.tex}} $
+	First of all, answer me $\frac{d}{dx}f = $
+	<input class="input-medium" type="text" name="derivative" data-ng-model="ans.derivative" /> 
+	<button class="inline btn btn-success" data-ng-click="verifyDerivative(); MathJax.Hub.Typeset();">Verify</button>
+
+	<div data-ng-show="flash.dx.correct"> 
+		<div class="alert alert-success">
+			<p>
+				Correct! Your answer is equivalent to ${{problem.derivative.tex}}$
+			</p>
+		</div>
+	</div>
+
+	<div data-ng-show="flash.error"> 
+		<div class="alert alert-error">
+		<p>
+			{{flash.dx.message}}
+		</p>
+		</div>
+	</div>
+	<div data-ng-show="errorCount > 4" class="alert alert-warning">
+		Remember that the derivative rule for {{problem.derivative.name}} functions in the form 
+			$f(x) = {{problem.r.rule}}~~~~~~$ is $~~~~~\frac{d}{dx}f = {{problem.r.derivative.tex}}$</div>
+
 </p>

@@ -10,7 +10,50 @@ MainCtrl.$inject = [];
 
 function DerivativeCtrl($scope) {
 	$scope.problem = new ProblemFunction()
-}
+	$scope.ans = {};
+	$scope.errorCount = 0;
+	$scope.flash = { 
+		dx: {
+			correct: false,
+			message: ""
+		},
+		error: false
+	};
+	$scope.verifyExponencialDx = function() {
+		var ans = $scope.ans.derivative.replace(/ /g, "");
+		$scope.flash.dx.error = false;
+		if (ans == $scope.problem.derivative.rule) {
+			$scope.flash.dx.correct = true;
+		} else {
+			$($scope.problem.derivative.equivalents).each(function(index, value) {
+				if (ans == value) {
+					$scope.flash.dx.correct = true;
+					return true;
+				};
+			});
+		};
+		$scope.flash.error = !$scope.flash.dx.correct;
+
+		if (ans.indexOf("x") < 0) {
+			$scope.flash.dx.message = "Your answer should contain x!";
+			$scope.errorCount++;
+		} else if (ans.indexOf("*") < 0) {
+			$scope.flash.dx.message = "Are you using * to multiplication?";
+		} else if ($scope.flash.error) {
+			$scope.flash.dx.message = "That's not correct! Try again!";			
+			$scope.errorCount++;
+		} else {
+			$scope.errorCount = 0;			
+		}
+		return false;
+	};
+
+	$scope.verifyDerivative = function() {
+		if ($scope.problem.r.name == "exponencial") {
+			$scope.verifyExponencialDx();
+		};
+	};
+};
 
 var FunctionRule = function(rule) {
 	this.generators = [
@@ -18,26 +61,42 @@ var FunctionRule = function(rule) {
 			name: "exponencial",
 			rule: "x ^ n",
 			derivative: {
-				rule: "n * x ^ (n - 1)",
-				tex: "n * x ^ {(n - 1)}"
+				rule: "n*x^(n-1)",
+				tex: "n \\times x ^ {(n - 1)}",
+				equivalents: []
 			},
 			number: null
 		}
 	]
 	return this.generators[rule];
-}
+};
 
 var ProblemFunction = function() {
 	this.f = {}
 	this.derivative = {};
-	this.r = "";
+	this.derivative.equivalents = [];
+	this.r = {};
 	this.regex = /n/g;
 	return this.generate();
-}
+};
 
 ProblemFunction.prototype = {
 	randomize: function(seed) {
 		return Math.floor((Math.random()*seed));
+	}
+	, evalExpo: function() {
+		var expo = this.derivative.rule.slice(
+			this.derivative.rule.indexOf("^")+1,
+			this.derivative.rule.lenght
+		);
+		var evaluated = eval(expo);
+		if (evaluated == 1) {
+			expo = "^" + expo;
+			evaluated = "";
+		}
+		var rule = this.derivative.rule.replace(expo, evaluated);
+		console.log("Equivalent rule: ", rule);
+		return rule;
 	}
 	, expandFunction: function(val) {
 		this.f.fn = this.r.rule.replace(this.regex, val+2);
@@ -47,6 +106,9 @@ ProblemFunction.prototype = {
 	, expandDerivative: function() {
 		this.derivative.rule = this.r.derivative.rule.replace(this.regex, this.r.number);
 		this.derivative.tex = this.r.derivative.tex.replace(this.regex, this.r.number);
+		if (this.r.name == "exponencial") {
+			this.derivative.equivalents[0] = this.evalExpo();
+		}
 		console.log("expanding derivative rule: ", this.r.derivative.rule, " to ", this.derivative);
 	}
 	, setValues: function() {
