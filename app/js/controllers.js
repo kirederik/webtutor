@@ -15,9 +15,14 @@ function DerivativeCtrl($scope) {
 	$scope.flash = { 
 		dx: {
 			correct: false,
-			message: ""
+			message: "",
+			error: false
 		},
-		error: false
+		nearest: {
+			correct: false,
+			message: "",
+			error: false
+		}
 	};
 	$scope.verifyExponencialDx = function() {
 		var ans = $scope.ans.derivative.replace(/ /g, "");
@@ -32,14 +37,16 @@ function DerivativeCtrl($scope) {
 				};
 			});
 		};
-		$scope.flash.error = !$scope.flash.dx.correct;
+		$scope.flash.dx.error = !$scope.flash.dx.correct;
 
 		if (ans.indexOf("x") < 0) {
 			$scope.flash.dx.message = "Your answer should contain x!";
 			$scope.errorCount++;
 		} else if (ans.indexOf("*") < 0) {
 			$scope.flash.dx.message = "Are you using * to multiplication?";
-		} else if ($scope.flash.error) {
+		} else if (ans.indexOf("^") < 0) {
+			$scope.flash.dx.message = "Are you using ^ to represent power?";
+		} else if ($scope.flash.dx.error) {
 			$scope.flash.dx.message = "That's not correct! Try again!";			
 			$scope.errorCount++;
 		} else {
@@ -52,6 +59,30 @@ function DerivativeCtrl($scope) {
 		if ($scope.problem.r.name == "exponencial") {
 			$scope.verifyExponencialDx();
 		};
+	};
+
+	$scope.verifyNearest = function() {
+		var answer = $scope.ans.nearest.replace(/\,/g, ".");
+		var nearest = $scope.problem.f.x;
+		var h = $scope.problem.f.h;
+		var val = nearest + h;
+		if (answer.indexOf(".") > 0) {
+			$scope.flash.nearest.message = "Integer numbers does not contain decimal point";
+			$scope.flash.nearest.error = true;
+		} else if (answer < nearest) {
+			$scope.flash.nearest.message = "There are an integer bigger than " + answer + " closer to " + val;
+			$scope.flash.nearest.error = true;
+		} else if (answer > nearest) {
+			$scope.flash.nearest.message = "There are an integer smaller than " + answer + " closer to " + val;
+			$scope.flash.nearest.error = true;
+		} else if (answer == nearest) {
+			$scope.flash.nearest.message = "That's correct!";
+			$scope.flash.nearest.error = false;
+		} else {
+			$scope.flash.nearest.message = "I do not understant your answer. Please try again";
+			$scope.flash.nearest.error = true;
+		}
+		$scope.flash.nearest.correct = !$scope.flash.nearest.error;
 	};
 };
 
