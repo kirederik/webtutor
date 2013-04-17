@@ -1,11 +1,12 @@
 /* app css stylesheet */
 
 .pull-center {
-	height: 480px; 
-	left: 50%; 
-	margin: -240px 0 0 -450px; 
-	position: absolute; 
-	top: 50%;
+	min-height: 480px; 
+	/*left: 50%; */
+	/*margin: -240px 0 0 -450px; */
+	/*position: absolute; */
+	/*top: 50%;*/
+	margin: 0 auto;
 	width: 900px;
 }
 

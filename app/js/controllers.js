@@ -27,6 +27,21 @@ function DerivativeCtrl($scope) {
 			correct: false,
 			message: "",
 			error: false
+		},
+		ddx: {
+			correct: false,
+			message: "",
+			error: false
+		},		
+		h: {
+			correct: false,
+			message: "",
+			error: false
+		},		
+		final: {
+			correct: false,
+			message: "",
+			error: false
 		}
 	};
 
@@ -49,10 +64,21 @@ function DerivativeCtrl($scope) {
 			$($scope.problem.derivative.equivalents).each(function(index, value) {
 				if (ans == value) {
 					$scope.flash.dx.correct = true;
+					$scope.flash.dx.error = !$scope.flash.dx.correct;
 					return true;
 				};
 			});
 		};
+		
+		if (!$scope.flash.dx.correct) {
+			var pf = new ProblemFunction();
+			var x = pf.randomize(10) + 1;
+			if (parser.parse(ans.replace(/x/g, x)) == parser.parse($scope.problem.derivative.rule.replace(/x/g, x))) {
+				$scope.flash.dx.correct = true;
+				$scope.flash.dx.error = !$scope.flash.dx.correct;
+				return true;
+			}
+		}
 		$scope.flash.dx.error = !$scope.flash.dx.correct;
 
 		if (ans.indexOf("x") < 0) {
@@ -73,8 +99,22 @@ function DerivativeCtrl($scope) {
 		if ($scope.problem.r.name == "exponencial") {
 			$scope.verifyExponencialDx();
 		};
+
 		$scope.refresh("correctDerivative");
 		$scope.refresh("errorDerivative");
+	};
+
+	$scope.verifyH = function() {
+		var answer = $scope.ans.h.replace(/\,/g, ".");
+		var value = $scope.problem.f.h;
+		if (answer == value) {
+			$scope.flash.h.error = false;
+		} else {
+			$scope.flash.h.message = "That's not correct!";
+			$scope.flash.h.error = true;
+		}
+		$scope.flash.h.correct = !$scope.flash.h.error;
+		$scope.refresh("correctH");
 	};
 
 	$scope.verifyFx = function() {
@@ -87,7 +127,36 @@ function DerivativeCtrl($scope) {
 			$scope.flash.fx.error = true;
 		}
 		$scope.flash.fx.correct = !$scope.flash.fx.error;
-	}
+		$scope.refresh("correctFx");
+	};
+
+	$scope.verifyDDx = function() {
+		var answer = eval($scope.ans.ddx.replace(/\,/g, "."));
+		var value = $scope.problem.derivative.value;
+		if (answer == value) {
+			$scope.flash.ddx.error = false;
+		} else {
+			$scope.flash.ddx.message = "That's not correct!";
+			$scope.flash.ddx.error = true;
+		}
+		$scope.flash.ddx.correct = !$scope.flash.ddx.error;
+		$scope.refresh("correctDDx");
+
+	};
+
+	$scope.verifyFinal = function() {
+		var answer = eval($scope.ans.final.replace(/\,/g, "."));
+		var value = $scope.problem.f.fx + $scope.problem.f.h * $scope.problem.derivative.value;
+		if (answer == value) {
+			$scope.flash.final.error = false;
+		} else {
+			$scope.flash.final.message = "That's not correct!";
+			$scope.flash.final.error = true;
+		}
+		$scope.flash.final.correct = !$scope.flash.final.error;
+		$scope.refresh("correctFinal");
+
+	};
 
 	$scope.verifyNearest = function() {
 		var answer = $scope.ans.nearest.replace(/\,/g, ".");
@@ -164,6 +233,7 @@ ProblemFunction.prototype = {
 		this.f.fn = this.r.rule.replace(this.regex, val+2);
 		this.f.eval = this.r.eval.replace(this.regex, val+2);
 		this.f.fx = eval(this.f.eval.replace(/x/g, this.f.x));
+		this.f.answer = eval(this.f.eval.replace(/x/g, this.f.x + this.f.h));
 		this.derivative.eval = this.r.derivative.eval.replace(this.regex, val+2);
 		this.r.number = val + 2;
 		console.log("expanding rule: ", this.r.rule, " to ", this.f.fn);

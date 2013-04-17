@@ -12,37 +12,80 @@
 	<input class="input-medium" type="text" name="derivative" data-ng-model="ans.derivative" />
 	<button data-ng-show="!flash.dx.correct" class="inline btn btn-info" data-ng-click="verifyDerivative();">Verify</button>
 
-	<div data-ng-show="flash.dx.correct">
+	<div data-ng-show="flash.dx.correct" id="correctDerivative">
 
 		<div class="alert alert-success">
-			<p id="correctDerivative">
-				Correct! Your answer is equivalent to ${{problem.derivative.tex}}$
-			</p>
+			Correct! Your answer is equivalent to ${{problem.derivative.tex}}$ <a class="close" data-dismiss="alert" href="#">&times;</a>
 		</div>
 
 		<p>
-			Now, find the nearest integer of {{problem.f.x+problem.f.h}}, that is,
+			Now, find the integer $x$<sub>1</sub>, where $x$<sub>1</sub> is the nearest integer of {{problem.f.x+problem.f.h}}.
+		</p> 
+		<p>
+			$x$<sub>1</sub> $=$ 
 			<input type="text" class="span1" name="integer" data-ng-model="ans.nearest" />
 			<button data-ng-show="!flash.nearest.correct" class="inline btn btn-info" data-ng-click="verifyNearest();">Verify</button>
 
-			<div data-ng-show="flash.nearest.correct">
+			<div data-ng-show="flash.nearest.correct" id="correctNearest">
 				<div class="alert alert-success">
-					<p>
-						Correct!
-					</p>
+					Correct! <a class="close" data-dismiss="alert" href="#">&times;</a>
 				</div>
-				<p id="correctNearest">
-					Its time to compute $f(x)$ when $x = {{problem.f.x}}.$ $f({{problem.f.x}}) = $
-					<input type="text" class="span1" name="fx" data-ng-model="ans.fx" />
-					<button data-ng-show="!flash.fx.correct" class="inline btn btn-info" data-ng-click="verifyFx()">Verify</button>
-					<div data-ng-show="flash.fx.correct">
-						<div class="alert alert-success">
+
+				<p>
+					Just a few more steps! Now, find the number $h = x - x$<sub>1</sub>. $h = $ <input type="text" class="span1" name="float" data-ng-model="ans.h" />			
+					<button data-ng-show="!flash.h.correct" class="inline btn btn-info" data-ng-click="verifyH();">Verify</button>
+
+				</p>
+				<div data-ng-show="flash.h.correct" id="correctH">
+					<div class="alert alert-success">
+						Correct! <a class="close" data-dismiss="alert" href="#">&times;</a>
+					</div>
+					<p>
+						Its time to compute $f(x$<sub>1</sub>$) = $
+						<input type="text" class="span1" name="fx" data-ng-model="ans.fx" />
+						<button data-ng-show="!flash.fx.correct" class="inline btn btn-info" data-ng-click="verifyFx()">Verify</button>
+						
+						<div data-ng-show="flash.fx.correct" id="correctFx">
+							<div class="alert alert-success">
+								Correct! Your answer is equivalent to {{problem.f.fx}} <a class="close" data-dismiss="alert" href="#">&times;</a>
+							</div>
 							<p>
-								Correct! Your answer is equivalent to {{problem.f.fx}}
+								We need to compute now, the derivative applied to the point $x$<sub>1</sub>. $\frac{d}{dx}f(x$<sub>1</sub>$) = $ 
+								<input type="text" class="span1" name="ddx" data-ng-model="ans.ddx" />
+								<button data-ng-show="!flash.ddx.correct" class="inline btn btn-info" data-ng-click="verifyDDx()">Verify</button>
+
+								<div data-ng-show="flash.ddx.correct" id="correctDDx">
+									<div class="alert alert-success">
+										Correct! Your answer is equivalent to {{problem.derivative.value}} <a class="close" data-dismiss="alert" href="#">&times;</a>
+									</div>
+
+									<p>
+										To approximate the value of $f(x)$, we can use the derivative:
+									</p>
+									<p>
+										$f(x) = f(x_1) + h \times \frac{d}{dx}f(x_1)$
+									</p>
+									<p>
+										Using the formula above, calculate $f(x) = $
+										<input type="text" class="span1" name="final" data-ng-model="ans.final" />
+										<button data-ng-show="!flash.final.correct" class="inline btn btn-info" data-ng-click="verifyFinal()">Verify</button>
+										<div data-ng-show="flash.final.correct" id="correctFinal">
+											<div class="alert alert-success">
+												<p>												
+													You made it!
+												</p>
+												<p>
+													Applying $f(x)$ at point {{problem.f.h+problem.f.x}} without derivatives, you would obtain: {{problem.f.answer}}, that is pretty near {{ problem.f.fx + problem.f.h * problem.derivative.value;}}.
+												</p>
+											</div>
+										</div>
+									</p>
+								</div>
 							</p>
 						</div>
-					</div>
-				</p>
+
+					</p>
+				</div>
 			</div>
 		</p>
 	</div>
@@ -50,7 +93,7 @@
 	<div data-ng-show="flash.dx.error">
 		<div class="alert alert-error">
 		<p>
-			{{flash.dx.message}}
+			{{flash.dx.message}} 
 		</p>
 		</div>
 		<div data-ng-show="errorCount > 4" class="alert alert-warning" id="errorDerivative">
@@ -60,18 +103,30 @@
 
 	<div data-ng-show="flash.nearest.error">
 		<div class="alert alert-error">
-		<p>
 			{{flash.nearest.message}}
-		</p>
+		</div>
+	</div>
+
+	<div data-ng-show="flash.h.error">
+		<div class="alert alert-error">
+			{{flash.h.message}}
 		</div>
 	</div>
 
 	<div data-ng-show="flash.fx.error">
 		<div class="alert alert-error">
-		<p>
-			{{flash.fx.message}}
-		</p>
+			{{flash.fx.message}} 
+		</div>
+	</div>
+	<div data-ng-show="flash.ddx.error">
+		<div class="alert alert-error">
+			{{flash.ddx.message}} 
 		</div>
 	</div>
 
 </p>
+<script>
+	$(document).ready(function() {
+		$(".alert").alert();
+	});
+</script>
